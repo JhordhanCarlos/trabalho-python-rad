@@ -22,19 +22,10 @@ janela = Tk()
 janela.title("Controle de Histórias em Quadrinhos")
 janela.geometry('1043x453')
 janela.configure(background=co9)
-janela.resizable(width=FALSE, height=FALSE)
+janela.resizable(width=FALSE, height=TRUE)
 
-##  Frames da esquerda 
 
-##---------- Header ----------
-
-headerLeft = Frame(janela, width=310, height=50, bg=co2, relief='flat')
-headerLeft.grid(row=0, column=0)
-
-titleForm = Label(headerLeft, text="Cadastre uma História em Quadrinhos", anchor=NW, font="Ivy 12 bold", bg=co2, fg=co1, relief='flat')
-titleForm.place(x=10, y=15)
-
-choice = int 
+############## Funções de Controle ##################
 
 def inserirUm():
     titulo =    tituloInput.get()
@@ -72,6 +63,95 @@ def inserirUm():
         i.destroy()
 
     show()
+
+def atualizarHq():
+    try:
+        gridContent = tree.focus()
+        gridContentDicio = tree.item(gridContent)
+        gridContentArray = gridContentDicio['values']
+        idContent = gridContentArray[0]
+
+        tituloInput.delete(0, 'end')
+        publisherInput.delete(0, 'end')
+        editorInput.delete(0, 'end')
+        commentInput.delete(0, 'end')
+
+        tituloInput.insert(0, gridContentArray[1])
+        publisherInput.insert(0, gridContentArray[2])
+        editorInput.insert(0, gridContentArray[3])
+        commentInput.insert(0, gridContentArray[5])
+
+        def atualizaUm():
+            titulo =    tituloInput.get()
+            publisher = publisherInput.get()
+            editor =    editorInput.get()
+        
+            status = bool
+            if(choice == 0):
+                status = False
+            else:
+                status = True
+
+            comment = commentInput.get()
+
+            if(titulo == ''):
+                messagebox.showerror("Preencha o campo", "O campo 'Título' é obrigatório!")
+
+            if(publisher == ''):
+                messagebox.showerror("Preencha o campo", "O campo 'Publicadora' é obrigatório!")
+            
+            if(editor == ''):
+                messagebox.showerror("Preencha o campo", "O campo 'Editora' é obrigatório!")
+
+            else:
+                novaHq =[titulo, publisher , editor, status, comment, idContent]
+                atualizar(novaHq)
+                messagebox.showinfo("HQ atualizada com sucesso", "Uma História Em Quarinhos foi modificada!")
+
+                tituloInput.delete(0, 'end')
+                publisherInput.delete(0, 'end')
+                editorInput.delete(0, 'end')
+                commentInput.delete(0, 'end')
+
+            for i in bodyRight.winfo_children():
+                i.destroy()
+
+
+            show()
+
+        confirmButton = Button(bodyLeft, command=atualizaUm, width=6, text ="Confirmar", justify='left', bg=co5, fg=co1, relief='flat')
+        confirmButton.place(x=170, y=340)
+    except IndexError:
+        confirmButton.destroy()
+        messagebox.showerror('Erro','Selecione um registro da tabela')
+
+def deletarHq():
+    try:
+        gridContent = tree.focus()
+        gridContentDicio = tree.item(gridContent)
+        gridContentArray = gridContentDicio['values']
+        idContent = gridContentArray[0]
+        deletar([idContent])
+        messagebox.showinfo('Excluido','Um registro de uma HQ foi excluido da tabela')
+        for i in bodyRight.winfo_children():
+                i.destroy()
+        show()
+
+    except IndexError:
+        messagebox.showerror('Erro','HQ não excluída')
+
+##  Frames da esquerda 
+
+##---------- Header ----------
+
+headerLeft = Frame(janela, width=310, height=50, bg=co2, relief='flat')
+headerLeft.grid(row=0, column=0)
+
+titleForm = Label(headerLeft, text="Cadastre uma História em Quadrinhos", anchor=NW, font="Ivy 12 bold", bg=co2, fg=co1, relief='flat')
+titleForm.place(x=10, y=15)
+
+choice = bool 
+global tree
 ##---------- Body ----------
 
 bodyLeft = Frame(janela, width=310, height=403, bg=co1, relief='flat')
@@ -105,11 +185,11 @@ statusLabel.place(x=10, y=190)
 
 statusTrueRadio = Radiobutton(bodyLeft, text="Sim", variable=choice, value=1)
 statusTrueRadio.place(x=15, y=220)
-choice = 1
+choice = True
 
 statusFalseRadio = Radiobutton(bodyLeft, text="Não", variable=choice, value=0)
 statusFalseRadio.place(x=70, y=220)
-choice = 0
+choice = False
 
 commentLabel = Label(bodyLeft, text="Comentário", anchor=NW, font="Ivy 10 bold", bg=co1, fg=co4, relief='flat')
 commentLabel.place(x=10, y=250)
@@ -118,13 +198,13 @@ commentInput = Entry(bodyLeft, width=45, justify='left', relief='solid')
 commentInput.place(x=15, y=280)
 
 
-saveButton = Button(bodyLeft, command= inserirUm, width=38, text ="Salvar", justify='left', bg=co8, fg=co1, relief='flat')
+saveButton = Button(bodyLeft, command= inserirUm, width=25, text ="Salvar", justify='left', bg=co8, fg=co1, relief='flat')
 saveButton.place(x=15, y=310)
 
-updateButton = Button(bodyLeft, width=38, text ="Atualizar", justify='left', bg=co6, fg=co1, relief='flat')
+updateButton = Button(bodyLeft, command= atualizarHq, width=25, text ="Atualizar", justify='left', bg=co6, fg=co1, relief='flat')
 updateButton.place(x=15, y=340)
 
-deleteButton = Button(bodyLeft, width=38, text ="Excluir", justify='left', bg=co7, fg=co1, relief='flat')
+deleteButton = Button(bodyLeft, command=deletarHq ,width=25, text ="Excluir", justify='left', bg=co7, fg=co1, relief='flat')
 deleteButton.place(x=15, y=370)
 
 ##  Frame da Direita
@@ -132,7 +212,11 @@ bodyRight = Frame(janela, width=588, height=403, bg=co1, relief='solid')
 bodyRight.grid(row=0, column=1, rowspan=2, padx=1, pady=0 ,sticky=NSEW)
 
 gridHeader = ['ID', 'Título', 'Publicadora', 'editora', 'Status', 'Comentário']
+
+
+################## Carregando a GRID ###########################
 def show():
+    global tree
     gridContent = listar()
 
     tree = ttk.Treeview(bodyRight, selectmode='extended', columns=gridHeader, show="headings")
@@ -156,7 +240,6 @@ def show():
         n+=1
 
     for item in gridContent:
-        print(item)
         if item == 0:
             tree.insert('', 'end', values="NÃO LIDO")
         elif item == 1:

@@ -40,25 +40,24 @@ def listar():
             dados.append(i)
     return dados
 
-def atualizar(data):
+def atualizar(item):
     with conn:
         cursor = conn.cursor()
         query = '''
         UPDATE hqs_tb 
             SET
-            (
                 titulo = ?, 
                 publicadora = ?, 
                 editora = ?, 
                 status = ?, 
-                comentário = ?
-            )
+                comentario = ?
         WHERE id = ?
         '''
-        cursor.execute(query, data)
+        print(item)
+        cursor.execute(query, item)
 
 def deletar(id):
     with conn:
         cursor = conn.cursor()
-        query = "DELETE FROM hqs_tb WHERE id = ?"
+        query = 'DELETE FROM hqs_tb WHERE id = ?'
         cursor.execute(query, id)
